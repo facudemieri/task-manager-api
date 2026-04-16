@@ -36,14 +36,20 @@ namespace TaskManagerAPI.Services
             };
         }
 
-        public async Task<List<TareaResponseDTO>> GetTareasDelProyectoAsync(int proyectoId, int usuarioId)
+        public async Task<PagedResultDTO<TareaResponseDTO>> GetTareasDelProyectoAsync(int proyectoId, int usuarioId, PaginacionParametrosDTO paginacion)
         {
             if (!await UsuarioTieneAccesoAsync(proyectoId, usuarioId))
-                return new List<TareaResponseDTO>();
+                return new PagedResultDTO<TareaResponseDTO>();
 
-            return await _contexto.Tareas
+            var query = _contexto.Tareas
                 .Include(t => t.AsignadoA)
-                .Where(t => t.ProyectoId == proyectoId)
+                .Where(t => t.ProyectoId == proyectoId);
+            
+            var totalItems = await query.CountAsync();
+
+            var items = await query
+                .Skip((paginacion.Page - 1) * paginacion.PageSize)
+                .Take(paginacion.PageSize)
                 .Select(t => new TareaResponseDTO
                 {
                     Id = t.Id,
@@ -55,6 +61,15 @@ namespace TaskManagerAPI.Services
                     AsignadoANombre = t.AsignadoA != null ? t.AsignadoA.Nombre : null
                 })
                 .ToListAsync();
+
+            return new PagedResultDTO<TareaResponseDTO>
+            {
+                Items = items,
+                TotalItems = totalItems,
+                Page = paginacion.Page,
+                PageSize = paginacion.PageSize,
+                TotalPages = (int)Math.Ceiling((double)totalItems / paginacion.PageSize)
+            };
         }
 
         public async Task<TareaResponseDTO?> GetTareaByIdAsync(int proyectoId, int tareaId, int usuarioId)

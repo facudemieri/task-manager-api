@@ -34,10 +34,10 @@ namespace TaskManagerAPI.Controllers
         /// <response code="200">Lista de tareas</response>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<TareaResponseDTO>>> GetTareas(int proyectoId)
+        public async Task<ActionResult<PagedResultDTO<TareaResponseDTO>>> GetTareas(int proyectoId, [FromQuery] PaginacionParametrosDTO paginacion)
         {
             var usuarioId = GetUsuarioId();
-            var tareas = await _tareaService.GetTareasDelProyectoAsync(proyectoId, usuarioId);
+            var tareas = await _tareaService.GetTareasDelProyectoAsync(proyectoId, usuarioId, paginacion);
             return Ok(tareas);
         }
 
