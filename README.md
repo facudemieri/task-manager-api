@@ -75,13 +75,13 @@ Sistema tipo Jira simplificado: los usuarios se registran, crean proyectos, agre
 5. Abrí Swagger en `https://localhost:{puerto}/swagger`
 
 ## Arquitectura
-Controllers     → reciben el request y delegan
-Services        → lógica de negocio
-DTOs            → contratos de entrada y salida
-Models          → entidades de base de datos
-Middleware      → manejo global de excepciones
-Tests           → unit tests con xUnit e InMemory
+- Controllers     → reciben el request y delegan
+- Services        → lógica de negocio
+- DTOs            → contratos de entrada y salida
+- Models          → entidades de base de datos
+- Middleware      → manejo global de excepciones
+- Tests           → unit tests con xUnit e InMemory
 
 ## Tests
-dotnet test
-9 unit tests cubriendo la capa de servicios — creación, permisos, filtros y validaciones.
+- dotnet test
+- 9 unit tests cubriendo la capa de servicios — creación, permisos, filtros y validaciones.
