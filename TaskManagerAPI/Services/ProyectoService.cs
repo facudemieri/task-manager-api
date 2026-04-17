@@ -15,11 +15,20 @@ namespace TaskManagerAPI.Services
                 _contexto = contexto;
             }
 
-            public async Task<List<ProyectoResponseDTO>> GetProyectosDelUsuarioAsync(int usuarioId)
+            public async Task<PagedResultDTO<ProyectoResponseDTO>> GetProyectosDelUsuarioAsync(int usuarioId, ProyectoFiltrosDTO filtros)
             {
-                return await _contexto.Proyectos
+                var query = _contexto.Proyectos
                     .Where(p => p.PropietarioId == usuarioId ||
-                                p.Miembros.Any(m => m.UsuarioId == usuarioId))
+                    p.Miembros.Any(m => m.UsuarioId == usuarioId));
+
+                if (!string.IsNullOrEmpty(filtros.Nombre))
+                    query = query.Where(p => p.Nombre.Contains(filtros.Nombre));
+
+                var totalItems = await query.CountAsync();
+
+                var items = await query
+                    .Skip((filtros.Page - 1) * filtros.PageSize)
+                    .Take(filtros.PageSize)
                     .Select(p => new ProyectoResponseDTO
                     {
                         Id = p.Id,
@@ -30,6 +39,15 @@ namespace TaskManagerAPI.Services
                         PropietarioNombre = p.Propietario.Nombre
                     })
                     .ToListAsync();
+
+                return new PagedResultDTO<ProyectoResponseDTO>
+                {
+                    Items = items,
+                    TotalItems = totalItems,
+                    Page = filtros.Page,
+                    PageSize = filtros.PageSize,
+                    TotalPages = (int)Math.Ceiling((double)totalItems / filtros.PageSize)
+                };
             }
 
             public async Task<ProyectoDetalleDTO?> GetProyectoByIdAsync(int proyectoId, int usuarioId)

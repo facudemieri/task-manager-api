@@ -26,4 +26,14 @@
         public int PageSize { get; set; }
         public int TotalPages { get; set; }
     }
+
+    public class TareaFiltrosDTO: PaginacionParametrosDTO
+    {
+        public string? Estado { get; set; }
+    } 
+
+    public class ProyectoFiltrosDTO : PaginacionParametrosDTO
+    {
+        public string? Nombre { get; set; }
+    }
 }

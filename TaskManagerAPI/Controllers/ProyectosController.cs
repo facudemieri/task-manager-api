@@ -31,10 +31,10 @@ namespace TaskManagerAPI.Controllers
         /// </summary>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        public async Task<ActionResult<List<ProyectoResponseDTO>>> GetProyectos()
+        public async Task<ActionResult<PagedResultDTO<ProyectoResponseDTO>>> GetProyectos([FromQuery] ProyectoFiltrosDTO filtros)
         {
             var usuarioId = GetUsuarioId();
-            var proyectos = await _proyectoService.GetProyectosDelUsuarioAsync(usuarioId);
+            var proyectos = await _proyectoService.GetProyectosDelUsuarioAsync(usuarioId, filtros);
             return Ok(proyectos);
         }
 

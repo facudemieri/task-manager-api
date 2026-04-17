@@ -36,7 +36,7 @@ namespace TaskManagerAPI.Services
             };
         }
 
-        public async Task<PagedResultDTO<TareaResponseDTO>> GetTareasDelProyectoAsync(int proyectoId, int usuarioId, PaginacionParametrosDTO paginacion)
+        public async Task<PagedResultDTO<TareaResponseDTO>> GetTareasDelProyectoAsync(int proyectoId, int usuarioId, TareaFiltrosDTO filtros)
         {
             if (!await UsuarioTieneAccesoAsync(proyectoId, usuarioId))
                 return new PagedResultDTO<TareaResponseDTO>();
@@ -44,12 +44,20 @@ namespace TaskManagerAPI.Services
             var query = _contexto.Tareas
                 .Include(t => t.AsignadoA)
                 .Where(t => t.ProyectoId == proyectoId);
-            
+
+            if (!string.IsNullOrEmpty(filtros.Estado))
+            {
+                if (!Enum.TryParse<EstadoTarea>(filtros.Estado, out var estado))
+                    return new PagedResultDTO<TareaResponseDTO>();
+
+                query = query.Where(t => t.Estado == estado);
+            }
+
             var totalItems = await query.CountAsync();
 
             var items = await query
-                .Skip((paginacion.Page - 1) * paginacion.PageSize)
-                .Take(paginacion.PageSize)
+                .Skip((filtros.Page - 1) * filtros.PageSize)
+                .Take(filtros.PageSize)
                 .Select(t => new TareaResponseDTO
                 {
                     Id = t.Id,
@@ -66,9 +74,9 @@ namespace TaskManagerAPI.Services
             {
                 Items = items,
                 TotalItems = totalItems,
-                Page = paginacion.Page,
-                PageSize = paginacion.PageSize,
-                TotalPages = (int)Math.Ceiling((double)totalItems / paginacion.PageSize)
+                Page = filtros.Page,
+                PageSize = filtros.PageSize,
+                TotalPages = (int)Math.Ceiling((double)totalItems / filtros.PageSize)
             };
         }
 

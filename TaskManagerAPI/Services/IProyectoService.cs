@@ -4,7 +4,7 @@ namespace TaskManagerAPI.Services
 {
     public interface IProyectoService
     {
-        Task<List<ProyectoResponseDTO>> GetProyectosDelUsuarioAsync(int usuarioId);
+        Task<PagedResultDTO<ProyectoResponseDTO>> GetProyectosDelUsuarioAsync(int usuarioId, ProyectoFiltrosDTO filtros);
         Task<ProyectoDetalleDTO?> GetProyectoByIdAsync(int proyectoId, int usuarioId);
         Task<ProyectoResponseDTO> CrearProyectoAsync(CrearProyectoDTO dto, int usuarioId);
         Task<ProyectoResponseDTO?> ActualizarProyectoAsync(int proyectoId, ActualizarProyectoDTO dto, int usuarioId);
