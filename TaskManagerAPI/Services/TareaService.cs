@@ -8,10 +8,11 @@ namespace TaskManagerAPI.Services
     public class TareaService : ITareaService
     {
         private readonly AppDbContext _contexto;
-
-        public TareaService(AppDbContext context)
+        private readonly ILogger<TareaService> _logger;
+        public TareaService(AppDbContext context, ILogger<TareaService> logger)
         {
             _contexto = context;
+            _logger = logger;
         }
 
         private async Task<bool> UsuarioTieneAccesoAsync(int proyectoId, int usuarioId)
@@ -110,6 +111,8 @@ namespace TaskManagerAPI.Services
             _contexto.Tareas.Add(tarea);
             await _contexto.SaveChangesAsync();
 
+            _logger.LogInformation("Usuario {UsuarioId} creó la tarea {TareaId} en el proyecto {ProyectoId}", usuarioId, tarea.Id, proyectoId);
+
             await _contexto.Entry(tarea).Reference(t => t.AsignadoA).LoadAsync();
             return MapearTarea(tarea);
         }
@@ -123,7 +126,10 @@ namespace TaskManagerAPI.Services
                 .Include(t => t.AsignadoA)
                 .FirstOrDefaultAsync(t => t.Id == tareaId && t.ProyectoId == proyectoId);
 
-            if (tarea == null) return null;
+            if (tarea == null)
+            {                            
+                return null;
+            }
 
             tarea.Titulo = dto.Titulo;
             tarea.Descripcion = dto.Descripcion;
@@ -144,10 +150,14 @@ namespace TaskManagerAPI.Services
                 .FirstOrDefaultAsync(t => t.Id == tareaId && t.ProyectoId == proyectoId);
 
             if (tarea == null) return null;
+            
 
             if (!Enum.TryParse<EstadoTarea>(dto.Estado, out var nuevoEstado))
+            {
+                _logger.LogWarning("Usuario {UsuarioId} envió un estado inválido: {Estado}", usuarioId, dto.Estado);
                 return null;
-
+            }
+                
             tarea.Estado = nuevoEstado;
             await _contexto.SaveChangesAsync();
 
@@ -166,6 +176,7 @@ namespace TaskManagerAPI.Services
 
             _contexto.Tareas.Remove(tarea);
             await _contexto.SaveChangesAsync();
+            _logger.LogInformation("Usuario {UsuarioId} eliminó la tarea {TareaId} del proyecto {ProyectoId}", usuarioId, tareaId, proyectoId);
             return true;
         }
 

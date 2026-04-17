@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +33,7 @@ namespace TaskManagerAPI.Tests
             contexto.Usuarios.Add(usuario);
             await contexto.SaveChangesAsync();
 
-            var service = new ProyectoService(contexto);
+            var service = new ProyectoService(contexto, NullLogger<ProyectoService>.Instance);
             var dto = new CrearProyectoDTO { Nombre = "Proyecto Test", Descripcion = "Descripcion" };
 
             //act
@@ -53,7 +54,7 @@ namespace TaskManagerAPI.Tests
             contexto.Usuarios.Add(usuario);
             await contexto.SaveChangesAsync();
 
-            var service = new ProyectoService(contexto);
+            var service = new ProyectoService(contexto, NullLogger<ProyectoService>.Instance);
             var dto = new CrearProyectoDTO { Nombre = "Proyecto Test" };
 
             // Act
@@ -79,7 +80,7 @@ namespace TaskManagerAPI.Tests
             contexto.Proyectos.AddRange(proyecto1, proyecto2);
             await contexto.SaveChangesAsync();
 
-            var service = new ProyectoService(contexto);
+            var service = new ProyectoService(contexto, NullLogger<ProyectoService>.Instance);
             var filtros = new ProyectoFiltrosDTO();
 
             // Act
@@ -103,7 +104,7 @@ namespace TaskManagerAPI.Tests
             contexto.Proyectos.Add(proyecto);
             await contexto.SaveChangesAsync();
 
-            var service = new ProyectoService(contexto);
+            var service = new ProyectoService(contexto, NullLogger<ProyectoService>.Instance);
 
             // Act
             var resultado = await service.EliminarProyectoAsync(proyectoId: 1, usuarioId: 2);

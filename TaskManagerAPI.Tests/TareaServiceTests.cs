@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,7 +43,7 @@ namespace TaskManagerAPI.Tests
         {
             // Arrange
             var (contexto, _, _) = await CrearEscenarioBase();
-            var service = new TareaService(contexto);
+            var service = new TareaService(contexto, NullLogger<TareaService>.Instance);
             var dto = new CrearTareaDTO { Titulo = "Tarea Test", Descripcion = "Descripcion" };
 
             // Act
@@ -59,7 +60,7 @@ namespace TaskManagerAPI.Tests
         {
             // Arrange
             var (contexto, _, _) = await CrearEscenarioBase();
-            var service = new TareaService(contexto);
+            var service = new TareaService(contexto, NullLogger<TareaService>.Instance);
             var dto = new CrearTareaDTO { Titulo = "Tarea Test" };
 
             // Act
@@ -78,7 +79,7 @@ namespace TaskManagerAPI.Tests
             contexto.Tareas.Add(tarea);
             await contexto.SaveChangesAsync();
 
-            var service = new TareaService(contexto);
+            var service = new TareaService(contexto, NullLogger<TareaService>.Instance);
             var dto = new ActualizarEstadoDTO { Estado = "EnProgreso" };
 
             // Act
@@ -98,7 +99,7 @@ namespace TaskManagerAPI.Tests
             contexto.Tareas.Add(tarea);
             await contexto.SaveChangesAsync();
 
-            var service = new TareaService(contexto);
+            var service = new TareaService(contexto, NullLogger<TareaService>.Instance);
             var dto = new ActualizarEstadoDTO { Estado = "EstadoInvalido" };
 
             // Act
@@ -120,7 +121,7 @@ namespace TaskManagerAPI.Tests
             );
             await contexto.SaveChangesAsync();
 
-            var service = new TareaService(contexto);
+            var service = new TareaService(contexto, NullLogger<TareaService>.Instance);
             var filtros = new TareaFiltrosDTO { Estado = "Pendiente" };
 
             // Act

@@ -9,10 +9,12 @@ namespace TaskManagerAPI.Services
         public class ProyectoService : IProyectoService
         {
             private readonly AppDbContext _contexto;
+            private readonly ILogger<ProyectoService> _logger;
 
-            public ProyectoService(AppDbContext contexto)
+            public ProyectoService(AppDbContext contexto, ILogger<ProyectoService> logger)
             {
                 _contexto = contexto;
+                _logger = logger;
             }
 
             public async Task<PagedResultDTO<ProyectoResponseDTO>> GetProyectosDelUsuarioAsync(int usuarioId, ProyectoFiltrosDTO filtros)
@@ -102,6 +104,8 @@ namespace TaskManagerAPI.Services
                 });
                 await _contexto.SaveChangesAsync();
 
+                _logger.LogInformation("Usuario {UsuarioId} creó el proyecto {ProyectoId} - {Nombre}", usuarioId, proyecto.Id, proyecto.Nombre);
+                
                 var propietario = await _contexto.Usuarios.FindAsync(usuarioId);
 
                 return new ProyectoResponseDTO
@@ -121,7 +125,13 @@ namespace TaskManagerAPI.Services
                     .Include(p => p.Propietario)
                     .FirstOrDefaultAsync(p => p.Id == proyectoId && p.PropietarioId == usuarioId);
 
-                if (proyecto == null) return null;
+                if (proyecto == null)
+                {
+                    _logger.LogWarning("Usuario {UsuarioId} intentó actualizar el proyecto {ProyectoId} sin ser propietario", usuarioId, proyectoId);
+                    return null;
+                }
+                
+            
 
                 proyecto.Nombre = dto.Nombre;
                 proyecto.Descripcion = dto.Descripcion;
@@ -143,10 +153,16 @@ namespace TaskManagerAPI.Services
                 var proyecto = await _contexto.Proyectos
                     .FirstOrDefaultAsync(p => p.Id == proyectoId && p.PropietarioId == usuarioId);
 
-                if (proyecto == null) return false;
+                if (proyecto == null)
+                {
+                    _logger.LogWarning("Usuario {UsuarioId} intentó eliminar el proyecto {ProyectoId} sin ser propietario", usuarioId, proyectoId);
+                    return false;
+                }
+                
 
                 _contexto.Proyectos.Remove(proyecto);
                 await _contexto.SaveChangesAsync();
+                _logger.LogInformation("Usuario {UsuarioId} eliminó el proyecto {ProyectoId}", usuarioId, proyectoId);
                 return true;
             }
 
