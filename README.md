@@ -19,6 +19,8 @@ Sistema tipo Jira simplificado: los usuarios se registran, crean proyectos, agre
 - **xUnit + InMemory** — unit tests
 - **Swagger / OpenAPI** — documentación interactiva
 - **Railway** — deploy
+- **Docker** - contenedorización
+- **Docker Compose** - orquestación local
 
 ## Endpoints principales
 
@@ -85,3 +87,9 @@ Sistema tipo Jira simplificado: los usuarios se registran, crean proyectos, agre
 ## Tests
 - dotnet test
 - 9 unit tests cubriendo la capa de servicios — creación, permisos, filtros y validaciones.
+
+## Docker
+- Levanta la API y la base de datos con un solo comando: docker-compose up
+- La API va a estar disponible en `http://localhost:8080/swagger`.
+
+No necesitás instalar .NET ni PostgreSQL — Docker se encarga de todo.
